@@ -7,14 +7,19 @@ import com.project.api.member.enums.VacationType;
 import com.project.api.member.service.VacationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -55,6 +60,35 @@ class MemberVacationInfoControllerTest {
         result
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/api/member/vacation/1"));
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    @DisplayName("휴가 NotNull 파라미터 검증")
+    public void validateParameterForRequestVacation(VacationRequestDto dto, HttpStatus httpStatus, String message) throws Exception {
+        // when
+        ResultActions result = mvc.perform(post("/api/member/vacation")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)));
+
+        // then
+        result
+                .andExpect(status().is(httpStatus.value()))
+                .andExpect(jsonPath("message").value(message));
+    }
+
+    private static Stream<Arguments> validateParameterForRequestVacation() {
+        return Stream.of(
+                Arguments.of(
+                        VacationRequestDto.builder()
+                                .vacationType(VacationType.ANNUAL)
+                                .build(), HttpStatus.BAD_REQUEST, "시작일을 입력 해주세요"),
+
+                Arguments.of(
+                        VacationRequestDto.builder()
+                                .startDate(LocalDate.now())
+                                .build(), HttpStatus.BAD_REQUEST, "휴가 타입을 입력 해주세요 (연차:ANNUAL, 반차:HALF, 반반차:HALF_HALF)")
+        );
     }
 
     @Test
