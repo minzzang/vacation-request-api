@@ -16,7 +16,7 @@ public class MemberVacationController {
 
     @PostMapping("/api/member/vacation")
     public ResponseEntity<?> requestVacation(@RequestBody VacationRequestDto requestDto) {
-        requestDto.validate();
+        requestDto.calculateVacationDays();
         Long id = vacationService.requestVacation(requestDto);
 
         return ResponseEntity

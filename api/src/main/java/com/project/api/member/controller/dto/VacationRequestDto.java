@@ -30,9 +30,15 @@ public class VacationRequestDto {
         this.vacationType = vacationType;
     }
 
-    public void validate() {
+
+    public void calculateVacationDays() {
+        validate();
+        use = vacationType.getCalculable().calculate(this);
+    }
+
+    private void validate() {
         if (vacationType.isAnnual()) {
-            if (startDate.isAfter(endDate)) throw new BusinessException(BusinessMessage.INVALID_VACATION_DATE);
+            if (endDate == null || startDate.isAfter(endDate)) throw new BusinessException(BusinessMessage.INVALID_VACATION_DATE);
         }
     }
 
@@ -46,6 +52,5 @@ public class VacationRequestDto {
                 .vacationType(vacationType)
                 .build();
     }
-
 
 }
