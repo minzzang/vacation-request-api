@@ -20,6 +20,7 @@ public class MemberVacationInfoService {
                 .orElseThrow(() -> new BusinessException(BusinessMessage.NOT_FOUND_VACATION_INFO));
     }
 
+    @Transactional
     public void save(MemberVacationInfo memberVacationInfo) {
         memberVacationInfoRepository.save(memberVacationInfo);
     }

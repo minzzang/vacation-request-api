@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -80,6 +81,40 @@ class VacationServiceTest {
                 () -> vacationService.requestVacation(dto));
         // then
         assertThat(exception.getMessage()).isEqualTo(BusinessMessage.NO_VACATION_LEFT.getMessage());
+    }
+
+    @Test
+    @DisplayName("휴가 취소하기")
+    public void cancelVacation() {
+        // given
+        MemberVacationInfo memberVacationInfo = MemberVacationInfo.builder()
+                .memberId(1L).totalVacationDays(15).remains(10).build();
+
+        MemberVacation memberVacation = MemberVacation.builder().id(1L)
+                .startDate(LocalDate.now().plusDays(1)).use(2)
+                .memberVacationInfo(memberVacationInfo).build();
+
+        given(memberVacationRepository.findById(1L)).willReturn(Optional.ofNullable(memberVacation));
+        // when
+        vacationService.cancelVacation(1L);
+        // then
+        assertThat(memberVacationInfo.getRemains()).isEqualTo(12);
+    }
+
+    @Test
+    @DisplayName("휴가 취소 실패(휴가 시작 전에만 취소 가능)")
+    public void cancelVacationForFail() {
+        // given
+        MemberVacation memberVacation = MemberVacation.builder().id(1L)
+                .startDate(LocalDate.now()).build();
+
+        given(memberVacationRepository.findById(1L)).willReturn(Optional.ofNullable(memberVacation));
+        // when
+        BusinessException businessException = assertThrows(BusinessException.class,
+                () -> vacationService.cancelVacation(1L)
+        );
+        // then
+        assertThat(businessException.getMessage()).isEqualTo(BusinessMessage.CANCEL_NOT_POSSIBLE.getMessage());
     }
 
 }

@@ -24,5 +24,12 @@ public class MemberVacationController {
                 .build();
     }
 
+    @DeleteMapping("/api/member/vacation/{id}")
+    public ResponseEntity<?> cancelVacation(@PathVariable Long id) {
+        vacationService.cancelVacation(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
 }
 

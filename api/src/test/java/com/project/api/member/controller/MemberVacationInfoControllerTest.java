@@ -18,6 +18,7 @@ import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -29,9 +30,6 @@ class MemberVacationInfoControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
-
-    @Autowired
-    private MemberVacationController memberVacationController;
 
     @MockBean
     private VacationService vacationService;
@@ -80,6 +78,17 @@ class MemberVacationInfoControllerTest {
         result
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(BusinessMessage.INVALID_VACATION_DATE.getMessage()));
+    }
+
+    @Test
+    @DisplayName("휴가 취소하기")
+    public void cancelVacation() throws Exception {
+        // when
+        ResultActions result = mvc.perform(delete("/api/member/vacation/1"));
+
+        // then
+        result
+                .andExpect(status().isNoContent());
     }
 
 }

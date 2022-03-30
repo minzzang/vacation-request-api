@@ -1,5 +1,7 @@
 package com.project.api.member.service;
 
+import com.project.api.exception.BusinessException;
+import com.project.api.exception.BusinessMessage;
 import com.project.api.member.controller.dto.VacationRequestDto;
 import com.project.api.member.domain.Member;
 import com.project.api.member.domain.MemberVacation;
@@ -33,5 +35,18 @@ public class VacationService {
         return saved.getId();
     }
 
+    @Transactional
+    public void cancelVacation(Long id) {
+        MemberVacation memberVacation = memberVacationRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(BusinessMessage.NOT_FOUND_VACATION));
+
+        memberVacation.isCancelPossible();
+        memberVacationRepository.deleteById(id);
+
+        memberVacation.cancel();
+        MemberVacationInfo memberVacationInfo = memberVacation.getMemberVacationInfo();
+
+        memberVacationInfoService.save(memberVacationInfo);
+    }
 
 }
