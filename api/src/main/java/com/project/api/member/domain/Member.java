@@ -1,15 +1,15 @@
 package com.project.api.member.domain;
 
 import com.project.api.common.BaseEntity;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class Member extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,9 +19,4 @@ public class Member extends BaseEntity {
     private String email;
 
     private String password;
-
-    public Member(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
 }

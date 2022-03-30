@@ -1,25 +1,52 @@
 package com.project.api.member.domain;
 
 import com.project.api.common.BaseEntity;
-import lombok.Getter;
+import com.project.api.exception.BusinessException;
+import com.project.api.exception.BusinessMessage;
+import com.project.api.member.enums.VacationType;
+import lombok.*;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class MemberVacation extends BaseEntity {
 
     @Id
-    @Column(unique = true, nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @MapsId
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private MemberVacationInfo memberVacationInfo;
 
-    private int totalVacationDays;
+    private LocalDate startDate;
 
-    private int use;
+    private LocalDate endDate;
 
+    private float use;
+
+    private String comments;
+
+    @Enumerated(EnumType.STRING)
+    private VacationType vacationType;
+
+    public void cancel() {
+        memberVacationInfo.cancel(use);
+    }
+
+    public void useVacation() {
+        memberVacationInfo.useVacation(use);
+    }
+
+    public void isCancelPossible() {
+        LocalDate now = LocalDate.now();
+        if (now.isEqual(startDate) || now.isAfter(startDate)) {
+            throw new BusinessException(BusinessMessage.CANCEL_NOT_POSSIBLE);
+        }
+    }
 }
