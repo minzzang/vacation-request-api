@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -19,6 +21,15 @@ public class VacationService {
 
     private final MemberVacationInfoService memberVacationInfoService;
     private final MemberVacationRepository memberVacationRepository;
+
+    public MemberVacation findById(Long id) {
+        return memberVacationRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(BusinessMessage.NOT_FOUND_VACATION));
+    }
+
+    public List<MemberVacation> findAllVacation(MemberVacationInfo info) {
+        return memberVacationRepository.findAllByMemberVacationInfo(info);
+    }
 
     @Transactional
     public Long requestVacation(AuthMember authMember, VacationRequestDto requestDto) {

@@ -21,7 +21,6 @@ public class MemberVacationInfo extends BaseEntity {
 
     private float remains;
 
-
     public void useVacation(float use) {
         remains -= use;
         checkRestOfVacation();
