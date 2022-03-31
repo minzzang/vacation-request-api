@@ -73,7 +73,7 @@ class MemberVacationInfoControllerTest {
                 .vacationType(VacationType.ANNUAL)
                 .build();
 
-        given(vacationService.requestVacation(any())).willReturn(1L);
+        given(vacationService.requestVacation(any(), any())).willReturn(1L);
         // when
         ResultActions result = mvc.perform(post("/api/member/vacation")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -125,7 +125,7 @@ class MemberVacationInfoControllerTest {
                 .vacationType(VacationType.ANNUAL)
                 .build();
 
-        given(vacationService.requestVacation(any())).willReturn(1L);
+        given(vacationService.requestVacation(any(), any())).willReturn(1L);
         // when
         ResultActions result = mvc.perform(post("/api/member/vacation")
                 .contentType(MediaType.APPLICATION_JSON)
