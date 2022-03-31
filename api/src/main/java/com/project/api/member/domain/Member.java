@@ -1,6 +1,9 @@
 package com.project.api.member.domain;
 
 import com.project.api.common.BaseEntity;
+import com.project.api.exception.BusinessException;
+import com.project.api.exception.BusinessMessage;
+import com.project.api.utils.PasswordEncoderUtil;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,4 +22,10 @@ public class Member extends BaseEntity {
     private String email;
 
     private String password;
+
+    public void checkPassword(String rawPassword) {
+        if (!PasswordEncoderUtil.matches(rawPassword, password)) {
+            throw new BusinessException(BusinessMessage.INVALID_LOGIN_INFO);
+        }
+    }
 }

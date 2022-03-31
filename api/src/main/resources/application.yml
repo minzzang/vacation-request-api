@@ -21,3 +21,6 @@ spring:
     init:
       schema-locations: classpath:schema.sql
       mode: always
+
+jwt:
+  secret: mjdfdfdasfmj1117mjaaamjfdfbcvnbc3232sadfsdf1117mtyoasdzxcj11mj77nhnfrmj1fg2378atrasasd12451asdasdsad12314a2131312asdassad

@@ -1,10 +1,12 @@
 package com.project.api.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.api.config.SecurityConfig;
 import com.project.api.exception.BusinessMessage;
 import com.project.api.member.controller.dto.VacationRequestDto;
 import com.project.api.member.enums.VacationType;
 import com.project.api.member.service.VacationService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,10 +15,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
@@ -27,17 +33,34 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = MemberVacationController.class)
+@WebMvcTest(
+        controllers = MemberVacationController.class,
+        excludeFilters = {
+                @ComponentScan.Filter(
+                        type = FilterType.ASSIGNABLE_TYPE,
+                        classes = SecurityConfig.class
+                )
+        }
+)
 class MemberVacationInfoControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
     @Autowired
+    private WebApplicationContext ctx;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @MockBean
     private VacationService vacationService;
+
+    @BeforeEach
+    public void setUp() {
+        mvc = MockMvcBuilders.webAppContextSetup(ctx)
+                .build();
+    }
 
     @Test
     @DisplayName("휴가 신청하기")
