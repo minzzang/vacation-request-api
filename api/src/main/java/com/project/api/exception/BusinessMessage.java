@@ -17,6 +17,7 @@ public enum BusinessMessage {
 
     REQUIRED_LOGIN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다. 인증 토큰을 헤더에 추가하세요."),
 
+    NOT_MY_VACATION(HttpStatus.CONFLICT, "자신이 신청한 휴가만 취소할 수 있습니다."),
     CANCEL_NOT_POSSIBLE(HttpStatus.CONFLICT, "휴가 시작 이후에는 휴가를 취소할 수 없습니다."),
     NO_VACATION_LEFT(HttpStatus.CONFLICT, "휴가 신청일이 남은 휴가보다 많습니다.");
 

@@ -1,5 +1,6 @@
 package com.project.api.member.service;
 
+import com.project.api.auth.AuthMember;
 import com.project.api.exception.BusinessException;
 import com.project.api.exception.BusinessMessage;
 import com.project.api.member.controller.dto.VacationRequestDto;
@@ -16,15 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class VacationService {
 
-    private final MemberService memberService;
     private final MemberVacationInfoService memberVacationInfoService;
     private final MemberVacationRepository memberVacationRepository;
 
     @Transactional
-    public Long requestVacation(VacationRequestDto requestDto) {
-        String email = "minzzang@gmail.com";
-        Member member = memberService.findByEmail(email);
-
+    public Long requestVacation(AuthMember authMember, VacationRequestDto requestDto) {
+        Member member = authMember.getMember();
         MemberVacationInfo memberVacationInfo = memberVacationInfoService.findById(member.getId());
 
         MemberVacation vacation = requestDto.toEntity(memberVacationInfo);
@@ -36,11 +34,12 @@ public class VacationService {
     }
 
     @Transactional
-    public void cancelVacation(Long id) {
+    public void cancelVacation(AuthMember authMember, Long id) {
+        Member member = authMember.getMember();
         MemberVacation memberVacation = memberVacationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(BusinessMessage.NOT_FOUND_VACATION));
 
-        memberVacation.isCancelPossible();
+        memberVacation.isCancelPossible(member.getId());
         memberVacationRepository.deleteById(id);
 
         memberVacation.cancel();

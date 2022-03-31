@@ -1,5 +1,6 @@
 package com.project.api.member.service;
 
+import com.project.api.auth.AuthMember;
 import com.project.api.exception.BusinessException;
 import com.project.api.exception.BusinessMessage;
 import com.project.api.member.controller.dto.VacationRequestDto;
@@ -30,9 +31,6 @@ class VacationServiceTest {
     private VacationService vacationService;
 
     @Mock
-    private MemberService memberService;
-
-    @Mock
     private MemberVacationInfoService memberVacationInfoService;
 
     @Mock
@@ -42,7 +40,6 @@ class VacationServiceTest {
     @DisplayName("휴가 신청하기")
     public void requestVacation() {
         // given
-        Member member = Member.builder().id(1L).build();
         MemberVacationInfo memberVacationInfo = MemberVacationInfo.builder()
                 .memberId(1L).totalVacationDays(15).remains(15).build();
 
@@ -52,11 +49,10 @@ class VacationServiceTest {
                 .startDate(LocalDate.now()).endDate(LocalDate.now().plusDays(1))
                 .use(1).vacationType(VacationType.ANNUAL).build();
 
-        given(memberService.findByEmail(any())).willReturn(member);
         given(memberVacationInfoService.findById(1L)).willReturn(memberVacationInfo);
         given(memberVacationRepository.save(any())).willReturn(memberVacation);
         // when
-        Long id = vacationService.requestVacation(dto);
+        Long id = vacationService.requestVacation(getAuthMember(), dto);
         // then
         assertThat(id).isEqualTo(1L);
         assertThat(memberVacationInfo.getRemains()).isEqualTo(14);
@@ -66,7 +62,6 @@ class VacationServiceTest {
     @DisplayName("휴가 신청 실패(남은 휴가 없음)")
     public void requestVacationForFail() {
         // given
-        Member member = Member.builder().id(1L).build();
         MemberVacationInfo memberVacationInfo = MemberVacationInfo.builder()
                 .memberId(1L).totalVacationDays(15).remains(2).build();
 
@@ -74,11 +69,10 @@ class VacationServiceTest {
                 .startDate(LocalDate.now()).endDate(LocalDate.now().plusDays(3))
                 .use(3).vacationType(VacationType.ANNUAL).build();
 
-        given(memberService.findByEmail(any())).willReturn(member);
         given(memberVacationInfoService.findById(1L)).willReturn(memberVacationInfo);
         // when
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> vacationService.requestVacation(dto));
+                () -> vacationService.requestVacation(getAuthMember(), dto));
         // then
         assertThat(exception.getMessage()).isEqualTo(BusinessMessage.NO_VACATION_LEFT.getMessage());
     }
@@ -96,7 +90,7 @@ class VacationServiceTest {
 
         given(memberVacationRepository.findById(1L)).willReturn(Optional.ofNullable(memberVacation));
         // when
-        vacationService.cancelVacation(1L);
+        vacationService.cancelVacation(getAuthMember(), 1L);
         // then
         assertThat(memberVacationInfo.getRemains()).isEqualTo(12);
     }
@@ -105,16 +99,40 @@ class VacationServiceTest {
     @DisplayName("휴가 취소 실패(휴가 시작 전에만 취소 가능)")
     public void cancelVacationForFail() {
         // given
+        MemberVacationInfo info = MemberVacationInfo.builder().memberId(1L).build();
         MemberVacation memberVacation = MemberVacation.builder().id(1L)
-                .startDate(LocalDate.now()).build();
+                .memberVacationInfo(info).startDate(LocalDate.now()).build();
 
         given(memberVacationRepository.findById(1L)).willReturn(Optional.ofNullable(memberVacation));
         // when
         BusinessException businessException = assertThrows(BusinessException.class,
-                () -> vacationService.cancelVacation(1L)
+                () -> vacationService.cancelVacation(getAuthMember(), 1L)
         );
         // then
         assertThat(businessException.getMessage()).isEqualTo(BusinessMessage.CANCEL_NOT_POSSIBLE.getMessage());
+    }
+
+    @Test
+    @DisplayName("휴가 취소 실패(본인이 신청한 휴가만 취소 가능)")
+    public void cancelVacationForNotMyVacation() {
+        // given
+        MemberVacationInfo info = MemberVacationInfo.builder().memberId(2L).build();
+        MemberVacation memberVacation = MemberVacation.builder().id(1L)
+                .memberVacationInfo(info).startDate(LocalDate.now()).build();
+
+        given(memberVacationRepository.findById(1L)).willReturn(Optional.ofNullable(memberVacation));
+        // when
+        BusinessException businessException = assertThrows(BusinessException.class,
+                () -> vacationService.cancelVacation(getAuthMember(), 1L)
+        );
+        // then
+        assertThat(businessException.getMessage()).isEqualTo(BusinessMessage.NOT_MY_VACATION.getMessage());
+    }
+
+    private AuthMember getAuthMember() {
+        Member member = Member.builder().id(1L)
+                .email("minzzang@gmail.com").password("1234").build();
+        return new AuthMember(member);
     }
 
 }

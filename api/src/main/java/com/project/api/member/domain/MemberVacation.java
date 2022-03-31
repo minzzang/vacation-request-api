@@ -43,7 +43,11 @@ public class MemberVacation extends BaseEntity {
         memberVacationInfo.useVacation(use);
     }
 
-    public void isCancelPossible() {
+    public void isCancelPossible(Long id) {
+        if (!memberVacationInfo.isMyVacation(id)) {
+            throw new BusinessException(BusinessMessage.NOT_MY_VACATION);
+        }
+
         LocalDate now = LocalDate.now();
         if (now.isEqual(startDate) || now.isAfter(startDate)) {
             throw new BusinessException(BusinessMessage.CANCEL_NOT_POSSIBLE);

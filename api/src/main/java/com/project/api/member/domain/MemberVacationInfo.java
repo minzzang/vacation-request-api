@@ -36,4 +36,8 @@ public class MemberVacationInfo extends BaseEntity {
     public void cancel(float use) {
         remains += use;
     }
+
+    public boolean isMyVacation(Long id) {
+        return memberId.equals(id);
+    }
 }
