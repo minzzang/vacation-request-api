@@ -1,12 +1,9 @@
-## 온라인 테스트 진행 방법
-- 아래 테스트 내용을 확인하고, 코드를 작성해주세요.
-- 테스트 결과물 제출은 Github에서 진행됩니다.
-- master가 아닌 임의의 작업branch를 만들고, 작업branch에 commit해 주세요. 
-- 모든 작업이 완료되면 master브랜치로 머지하는 PullRequest를 만들어주세요.
-- PullRequest생성까지 완료되었다면, HR담당자(job@kakaostyle.com)에게 알려주세요.
+api 시나리오
+서버 구동시 schema.sql에 있는 DDL과 DML이 실행됩니다.
+휴가 신청 : 로그인 API 호출 -> 휴가 신청 API 호출
 
+휴가 취소 : 로그인 API 호출 -> 목록 API 호출 -> 휴가 보기 API 호출 -> 휴가 취소 API 호출
 
-## 온라인 테스트 내용
-아래 두가지 과제 중 한가지를 선택해서 구현해주세요.
-- document-apporval
-- request-vacation
+로그인 api 호출 방법
+header에 ["Authorization" : "Token {accessToken}"] 형식으로 추가합니다.
+Token 뒤에 한 자리 스페이스(" ")를 둡니다.
